@@ -3,11 +3,10 @@ import SwiftData
 
 @Model
 final class Category {
-    var name: String = ""
+    var name: String?
     var meals: [CategoryMeal] = []
     
-    init(name: String, meals: [CategoryMeal]) {
-        self.name = name
+    init(meals: [CategoryMeal]) {
         self.meals = meals
     }
 }
