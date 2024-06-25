@@ -9,22 +9,15 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var category: [CategoryMeal]
 
+    @Query private var meals: [MealShortModel]
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(category) { categoryMeal in
-                    NavigationLink {
-                        Text("Item at \(categoryMeal.strMeal)")
-                    } label: {
-                        Text(categoryMeal.strMeal)
-                    }
-                }
+        List {
+            Text("Desert").bold()
+            ForEach(meals) { meal in
+                Text(meal.strMeal)
             }
-        } detail: {
-            Text("Select an item")
         }
     }
 }

@@ -10,23 +10,39 @@ import SwiftData
 
 @main
 struct fetch_interviewApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+    
+    let container = try! ModelContainer(for: MealShortModel.self)
+    let dataLoader = DataLoader()
+    
+    @MainActor
+    private func importData() async {
+        
+        let context = container.mainContext
+        
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            // fetch data
+            let meals = try await dataLoader.fetchByCategory(category: "Dessert")
+            // store data to on-device database
+            if !meals.isEmpty {
+                meals.forEach{ meal in
+                    let mealShortModel = MealShortModel(strMeal: meal.strMeal, strMealThumb: meal.strMealThumb, idMeal: meal.idMeal)
+                    context.insert(mealShortModel)
+                }
+            }
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print(error)
         }
-    }()
+        
+        
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-        }
-        .modelContainer(sharedModelContainer)
+                .task {
+                    await importData()
+            }
+
+        }.modelContainer(container)
     }
 }

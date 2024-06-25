@@ -10,30 +10,31 @@ import Foundation
 
 let mealUrl = URL(string: "https://themealdb.com/api/json/v1/1/lookup.php?i=")
 
-func fetchDessert(categoryName: String, completionHandler: @escaping ([CategoryMeal]) -> Void) {
-    let categoryUrl = URL(string: "https://themealdb.com/api/json/v1/1/filter.php?c=Dessert") ??; default value
-    var category: [CategoryMeal]
-    
-    let task = URLSession.shared.dataTask(with: categoryUrl, completionHandler: { (data, response, error) in
-        if let error = error {
-          print("Error accessing swapi.co: /(error)")
-          return
+struct Category: Decodable {
+    let meals: [MealShort]
+}
+
+struct MealShort: Decodable {
+    let strMeal: String
+    let strMealThumb: String
+    let idMeal: String
+}
+
+struct DataLoader {
+    func fetchByCategory(category: String) async throws -> [MealShort] {
+        guard let url = URL(string: "https://themealdb.com/api/json/v1/1/filter.php?c=" + category) else {
+            return []
         }
         
-        guard let httpResponse = response as? HTTPURLResponse,
-                    (200...299).contains(httpResponse.statusCode) else {
-                print("Error with the response, unexpected status code: \(response)")
-                return
-              }
-
-        if let data = data,
-           let category = try? JSONDecoder().decode(Category.self, from: data) {
-            category.name = categoryName
-            completionHandler(category.meals ?? [])
-        }
-    })
-    
-    task.resume()
-    
-    completionHandler(category)
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse, 
+                httpResponse.statusCode == 200
+        else { return [] }
+        
+        let category = try JSONDecoder().decode(Category.self, from: data)
+        
+        return category.meals
+    }
 }
+
