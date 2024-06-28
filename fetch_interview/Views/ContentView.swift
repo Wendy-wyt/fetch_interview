@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  fetch_interview
 //
-//  Created by Michael Zhang on 6/22/24.
+//  Created by Yuting Wu on 6/22/24.
 //
 
 import SwiftUI

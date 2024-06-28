@@ -2,7 +2,7 @@
 //  fetch_interviewApp.swift
 //  fetch_interview
 //
-//  Created by Michael Zhang on 6/22/24.
+//  Created by Yuting Wu on 6/22/24.
 //
 
 import SwiftUI
@@ -14,44 +14,27 @@ struct fetch_interviewApp: App {
     let container = try! ModelContainer(for: MealShortModel.self)
     let dataLoader = DataLoader()
     
-    @MainActor
-    private func importData() async {
-        
-        let context = container.mainContext
-        
-        do {
-            
-            // predicate to fetch MealShortModel objects
-            var mealsDescriptor = FetchDescriptor<MealShortModel>()
-            mealsDescriptor.fetchLimit = 1
-            
-            let persistedMeals = try context.fetch(mealsDescriptor)
-            
-            if persistedMeals.isEmpty {
-                // fetch data
-                let meals = try await dataLoader.fetchByCategory(category: "Dessert")
-                // store data to on-device database
-                if !meals.isEmpty {
-                    meals.forEach{ meal in
-                        let mealShortModel = MealShortModel(strMeal: meal.strMeal, strMealThumb: meal.strMealThumb, idMeal: meal.idMeal)
-                        context.insert(mealShortModel)
-                    }
-                }
-            }
-        } catch {
-            print(error)
-        }
-        
-        
-    }
-
+    @State var initLoading: Bool = true
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .task {
-                    await importData()
+            VStack{
+                if !initLoading {
+                                ContentView()
+                            } else {
+                                LoadingView()
+                            }
             }
-
-        }.modelContainer(container)
+            .task {
+                        do {
+                            let dataImporter = DataImporter()
+                            try await dataImporter.importData(container: container, dataLoader: dataLoader)
+                        } catch {
+                            print(error)
+                        }
+                        self.initLoading = false
+                    }
+        }
+        .modelContainer(container)
     }
 }

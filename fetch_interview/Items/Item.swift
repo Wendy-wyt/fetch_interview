@@ -1,3 +1,11 @@
+//
+//  Item.swift
+//  fetch_interview
+//
+//  Created by Yuting Wu on 6/22/24.
+//
+
+
 import Foundation
 import SwiftData
 
@@ -13,24 +21,3 @@ class MealShortModel {
         self.idMeal = idMeal
     }
 }
-
-//@Model
-//final class MealFull:Meal {
-//    var strInstructions: String?
-//    var ingredients: [Ingredient]?
-//    
-//    override init() {
-//        super.init()
-//    }
-//}
-//
-//@Model
-//final class Ingredient {
-//    var strIngredient: String
-//    var strMeasure: String
-//    
-//    init(strIngredient: String, strMeasure: String) {
-//        self.strIngredient = strIngredient
-//        self.strMeasure = strMeasure
-//    }
-//}
